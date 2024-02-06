@@ -37,7 +37,7 @@ from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras.applications.efficientnet import EfficientNetB7
 from keras_cv_attention_models import coatnet
 from tensorflow.keras.regularizers import l2
-from alexnet import AlexNet
+from .alexnet import AlexNet
 
 
 class ModelTree(object):

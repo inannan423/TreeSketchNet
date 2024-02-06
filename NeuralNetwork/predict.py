@@ -2,24 +2,21 @@ import tensorflow as tf
 
 print("TensorFlow版本:", tf.__version__)
 
-# 引入 plt 用于显示图片
-import matplotlib.pyplot as plt
-
-from dataset import PairImgParamClassification
-from utils import natural_keys
-import os
-import numpy as np 
-from models.my_model import ModelTree
-from utils.write_logs import read_dictionary_from_file, save_dictionary_to_file
-import glob
-from utils.my_metrics import OneMinusRMSE
+from dataset import PairImgParamClassification  # 引入 dataset 模块中的 PairImgParamClassification 类
+from utils import natural_keys  # 引入 utils 模块中的 natural_keys 函数，用于排序
+import os   # 引入 os 模块
+import numpy as np  # 引入 numpy 模块
+from models.my_model import ModelTree   # 引入 models 模块中的 ModelTree 类
+from utils.write_logs import read_dictionary_from_file, save_dictionary_to_file # 引入 utils 模块中的 read_dictionary_from_file 和 save_dictionary_to_file 函数
+import glob # 引入 glob 模块，用于查找符合特定规则的文件路径名
+from utils.my_metrics import OneMinusRMSE   # 引入 utils 模块中的 OneMinusRMSE 类
 from dataset.parameters_elab import get_subdivision_keys,\
     assign_correct_type_toParams
 import ntpath
 
-local_dir = os.path.dirname(__file__)
-test_set_dir = local_dir + "/test_set"
-log_dir = local_dir + "/logs_archive/fit"
+local_dir = os.path.dirname(__file__)   # 获取当前文件所在目录
+test_set_dir = local_dir + "/test_set"  # 获取测试集目录
+log_dir = local_dir + "/logs_archive/fit"   # 获取日志目录
 
 model_name = "efficientnet_multiple"
 IMG_SHAPE = [608, 608, 3]
@@ -66,21 +63,14 @@ for img, labels in full_dataset:
     head_img_dir, image_filename = ntpath.split(img_path)
     num_img = int(image_filename.split('_')[0])
     params_path = list_params[num_img]
-
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     print("img_path: ", img_path)
     print("params_path: ", params_path)
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
     respective_dictionary = read_dictionary_from_file(params_path)
     img = tf.expand_dims(img, 0)
 
 
     result = model(img)
 
-
-    print("RESULT ========================================")
-    print(result)
 
 
     loss, loss1, loss2,loss3,\
@@ -116,11 +106,6 @@ for img, labels in full_dataset:
                         one_minus_rmse4, one_minus_rmse5, one_minus_rmse6]
     if not(os.path.exists(head)):
         os.makedirs(head)
-
-    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-
-    print("save_output_dict_dir: ", save_output_dict_dir)
-    print("respective_dictionary: ", respective_dictionary)
 
     save_dictionary_to_file(save_output_dict_dir, respective_dictionary)
     count += 1

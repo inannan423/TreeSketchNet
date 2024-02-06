@@ -29,7 +29,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import re
 import tensorflow as tf
-from write_logs import write_img_logs
+from .write_logs import write_img_logs
 import numpy as np
 import signal
 import os

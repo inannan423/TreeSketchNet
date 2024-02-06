@@ -36,9 +36,21 @@ import ast
 import glob
 from math import inf
 from utils import natural_keys
-from normalizations import choose_normalization
-from parameters_elab import convert_leaf_shape_int, convert_choiceNegPos_0_1
+from .normalizations import choose_normalization
+from .parameters_elab import convert_leaf_shape_int, convert_choiceNegPos_0_1
 from collections import defaultdict
+import re
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 some_keys = ['attractOut', 'baseSize', 'baseSize_s', 'horzLeaves', 'leafScaleV', 
             'lengthV', 'prune', 'pruneBase', 'pruneRatio', 'rSplits2', 'radiusTweak', 
