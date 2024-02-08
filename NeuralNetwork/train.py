@@ -11,6 +11,10 @@ from dataset.parameters_elab import get_subdivision_keys
 from utils.my_metrics import OneMinusRMSE
 from utils.write_logs import save_dictionary_to_file
 
+print("######################### Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+# 打印 GPU 的显存
+print("######################### GPU Memory: ", tf.config.experimental.list_physical_devices('GPU'))
+
 local_dir = os.path.dirname(__file__)
 dataset_dir = local_dir + "/train_validation_set"
 log_dir = local_dir + "/logs_archive/fit"
@@ -19,8 +23,9 @@ if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
 IMG_SHAPE = [608, 608, 3]
-BATCH_SIZE = 8
-model_name = 'efficientnet_multiple'
+BATCH_SIZE = 4
+# model_name = 'efficientnet_multiple'
+model_name = 'alexnet_multiple'
 
 if 'resnet' in model_name or 'efficientnet' in model_name:
     IMG_SHAPE = [224, 224, 3]
@@ -111,15 +116,16 @@ else:
             model = tf.keras.models.load_model(os.path.join(load_dir, list_model[-1]),custom_objects={'OneMinusRMSE':OneMinusRMSE})
 
 
-EPOCHS = 2000
+EPOCHS = 80
 summary_dict['epochs']=EPOCHS
 
 save_dictionary_to_file(os.path.join(log_dir, "summary_dict.py"), summary_dict)
 
 if save_callback is True:
-    model._layers = [layer for layer in model._layers if isinstance(layer, keras.layers.Layer)]
+    # model._layers = [layer for layer in model._layers if isinstance(layer, keras.layers.Layer)]
+    model._layers = [layer for layer in model.layers if isinstance(layer, keras.layers.Layer)]
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(log_dir, 'model_{epoch:02d}.h5'), period = 70)
+    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=os.path.join(log_dir, 'model_{epoch:02d}.h5'), period = 10)
     stop_callback = StopCallback(log_dir)
     custom_progbar = CustomTQDMProgressBar()
     reduceLR = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=30, mode='auto', verbose=1)
