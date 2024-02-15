@@ -134,7 +134,7 @@ class CustomTQDMProgressBar(tfa.callbacks.TQDMProgressBar):
                 Defaults to 1.
         Returns:
             metrics_string: a string displaying metrics using the given
-            formators passed in through the constructor.
+            fo   rmators passed in through the constructor.
         """
 
         metric_value_pairs = []

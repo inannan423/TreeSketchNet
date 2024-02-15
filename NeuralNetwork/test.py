@@ -73,6 +73,9 @@ for img, labels in full_dataset:
     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
     respective_dictionary = read_dictionary_from_file(params_path)
+    
+    print("@#@@@@@@@@@###############@!!!!!!!!!!!!!!!", img)
+    
     img = tf.expand_dims(img, 0)
 
 

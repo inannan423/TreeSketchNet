@@ -11,6 +11,10 @@ from dataset.parameters_elab import get_subdivision_keys
 from utils.my_metrics import OneMinusRMSE
 from utils.write_logs import save_dictionary_to_file
 
+# tensorflow 版本
+
+print(tf.__version__)
+
 print("######################### Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 # 打印 GPU 的显存
 print("######################### GPU Memory: ", tf.config.experimental.list_physical_devices('GPU'))
@@ -41,7 +45,7 @@ save_callback = True
 load_model = False
 
 subdivision_keys = get_subdivision_keys()
-print(subdivision_keys)
+print("##$$$$$$$",subdivision_keys)
 
 
 train_dataset_path = os.path.join(dataset_dir, "train_dataset")
@@ -80,6 +84,7 @@ for image, labels in train_dataset.take(1):
 
 
 LEARNING_RATE = 1e-5
+
 optimizer = keras.optimizers.Adam(learning_rate= LEARNING_RATE)
 summary_dict['optimizer']= "adam with learning_rate = " + str(LEARNING_RATE)
 

@@ -90,6 +90,9 @@ def get_subdivision_keys():
     local_dir = os.path.dirname(__file__)
     dictionary = importDataFromDir(os.path.join(local_dir, "parameter_converter_dict.py"))
     keys = dictionary.keys()
+
+    print(keys)
+
     subdivision_keys = defaultdict(list)
 
     for key in keys:
@@ -115,6 +118,8 @@ def get_subdivision_keys():
 
             else:
                 subdivision_keys['keys_min_max'].append(key)
+    
+    print(subdivision_keys)
     return subdivision_keys
 
 

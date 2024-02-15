@@ -24,11 +24,17 @@ if os.path.exists(log_dir):
         list_model.sort(key=natural_keys)
         model = tf.keras.models.load_model(os.path.join(log_dir, list_model[-1]), custom_objects={'OneMinusRMSE': OneMinusRMSE})
 
-image_path = "NeuralNetwork\\test_set\\styles_sketch_images\\hand\\5_camera_right.png"
+image_path = "NeuralNetwork\\test_set\\styles_sketch_images\\hand\\2_camera_right.png"
 img = tf.io.read_file(image_path)
-img = tf.image.decode_jpeg(img, channels=3)
-img = tf.image.resize(img, (IMG_SHAPE[0], IMG_SHAPE[1]))
-img = tf.expand_dims(img, axis=0)  # Add batch dimension
+img = tf.io.decode_jpeg(img, channels=IMG_SHAPE[2])
+img = tf.image.resize(img, [IMG_SHAPE[0], IMG_SHAPE[1]])
+img = tf.cast(img, tf.float32)
+img = img.numpy()
+
+img = img / 255.0
+
+# 添加批量维度
+img = tf.expand_dims(img, axis=0)
 
 result = model(img)
 
@@ -44,5 +50,10 @@ for index, key in enumerate(normalization_matrices.item().keys()):
     param_dict = pair_img_param.reconstruct_params_dict(subdivision_keys[key], denorm)
 
     respective_dictionary.update(param_dict)
+
+if 'keys_seed' not in normalization_matrices.item().keys():
+    respective_dictionary['seed'] = 0
+
+respective_dictionary = assign_correct_type_toParams(respective_dictionary)
 
 print(respective_dictionary)

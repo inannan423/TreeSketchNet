@@ -44,21 +44,35 @@ class PairImgParamClassification(object):
         sketch_dir = os.path.join(main_dir, "styles_sketch_images")
         if os.path.exists(sketch_dir):
             p = Path(sketch_dir)
-            print(str(p))
+            # print(str(p))
             self.list_ds = tf.data.Dataset.list_files(str(p/'*/*.png'), shuffle = shuffle)
         else:
             sketch_dir = os.path.join(main_dir, "sketch_images")
             p = Path(sketch_dir)
-            print(str(p))
+            # print(str(p))
             self.list_ds = tf.data.Dataset.list_files(str(p/'*.png'), shuffle = shuffle)
+    
+        
+        # 用于存储图片的
         self.list_images_path = list(self.list_ds.as_numpy_iterator())
+        
+        # print("self.list_images_path: ", self.list_images_path)
+
         self.cardinality = len(self.list_images_path)
+
+        print("cardinality: ", self.cardinality)
+
+        print("#########################!!!!!!!!!!!!!!!!!!!!!")
         for filename in self.list_images_path[0:2]:
             print(filename)
+        
         print("----------------------------------------------------------")
         self.list_param_file = glob.glob(os.path.join(param_dir, "*.py"))
         self.list_param_file.sort(key = natural_keys)
         self.param_file_structure_path = self.list_param_file[0]
+        
+        # print("$$$$$$$@@@@@@@@@ self.list_param_file: ", self.list_param_file)
+
         for filename in self.list_param_file[:2]:
             print(filename)
         for filename in self.list_param_file[-2:]:
@@ -133,7 +147,10 @@ class PairImgParamClassification(object):
 
         image = tf.image.resize(image, [self.IMG_SHAPE[0], self.IMG_SHAPE[1]])
         image = tf.cast(image, tf.float32)
+
+        print("##$$$$$************",image)
         image = image.numpy()
+        
         if 'inception' in self.NN_model_name:
             ''' image normalized btw -1 and 1 '''
             image = (image / 127.5) - 1.0
@@ -144,6 +161,10 @@ class PairImgParamClassification(object):
         return image
 
     def get_params_index_from_img(self, filename):
+
+        print("$$$$$$$$$$$$ filename: ", filename)
+        
+
         parts = tf.strings.split(filename, sep=os.path.sep)
         file_name = parts[-1]
         filename_parts = tf.strings.split(file_name, sep="_")
@@ -154,23 +175,46 @@ class PairImgParamClassification(object):
     def tensor_parameters(self, filename):
         index = self.get_params_index_from_img(filename)
         labels = {}
+
+        # 打印 self.labelsData 的类型
+        print("!@@@@@@@@@@@@@@@@@@@@@ self.labelsData: ", type(self.labels_dict))
+
         for key, val in self.labels_dict.items():
             labels[key] = val[index]
         return labels  
 
-    def create_params_matrices(self, list_param_file, subdivision_keys):
-        m = len(list_param_file)
-        first_file = list_param_file[0]
-        print("first_file: ", first_file)
-        self.elab_data(self.importDataFromDir(first_file),subdivision_keys,m,0)
-        for index in range(1, m):
-            file = list_param_file[index]
-            self.elab_data(self.importDataFromDir(file),subdivision_keys,m,index)
-        for norm_type in subdivision_keys.keys():
+    # def create_params_matrices(self, list_param_file, subdivision_keys):
+    #     m = len(list_param_file)
+    #     first_file = list_param_file[0]
+    #     print("first_file: ", first_file)
+    #     self.elab_data(self.importDataFromDir(first_file),subdivision_keys,m,0)
+    #     for index in range(1, m):
+    #         file = list_param_file[index]
+    #         self.elab_data(self.importDataFromDir(file),subdivision_keys,m,index)
+    #     for norm_type in subdivision_keys.keys():
+    #         _, normalization_matrix, result = choose_normalization(norm_type, self.labels_dict[norm_type])
+    #         self.normalization_dict[norm_type] = normalization_matrix
+    #         self.labels_dict[norm_type] = result
+
+    def create_params_matrices(self, list_param_files, subdivision_keys):
+        
+        print("!!!!!!!!!!!!!!!!!!",len(list_param_files))
+        
+        for index, param_file in enumerate(list_param_files):
+
+            data = self.importDataFromDir(param_file)
+
+            
+            self.elab_data(data, subdivision_keys, len(list_param_files), index)
+
+        for norm_type, some_keys in subdivision_keys.items():
+
+            print("$$$$$$$$$$ norm_type: ", norm_type)
+
             _, normalization_matrix, result = choose_normalization(norm_type, self.labels_dict[norm_type])
             self.normalization_dict[norm_type] = normalization_matrix
             self.labels_dict[norm_type] = result
-        
+
     def importDataFromDir(self, filename):
         settings = {}
         try:
@@ -182,14 +226,17 @@ class PairImgParamClassification(object):
 
         except (FileNotFoundError, IOError):
             print("File Not Found")
+
+        # print("???????????????????? settings: ", settings)
         return settings
 
     def elab_data(self, dictionary, subdivision_keys, m, i):
         keys = dictionary.keys()
         for norm_type, some_keys in subdivision_keys.items():
-            nw_nh = len(some_keys)
+            nw_nh = len(some_keys)  # 用于 
             nc = 4
             i_sample = np.zeros([nw_nh, nc], dtype=np.float32)
+            
             index = 0
             for key in keys:
                 if key in some_keys:
@@ -208,6 +255,9 @@ class PairImgParamClassification(object):
             if i == 0:
                 self.labels_dict[norm_type] = np.zeros([m] + list(result.shape), dtype=np.float32)
                 self.params_shapes_dict[norm_type] = result.shape
+            
+            # print("&&&&&&&&&&&&&&&&&&&&", m, norm_type, i)
+
             self.labels_dict[norm_type][i] = result
 
     def label_classes(self, filename, m, index):
